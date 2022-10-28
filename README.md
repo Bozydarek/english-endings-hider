@@ -1,1 +1,2 @@
-# english-endings-hider
+# English ending hider
+Interactive tool that hides endings of english words in text.
