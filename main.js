@@ -20,17 +20,30 @@ async function generate(event) {
 
     // console.log(url, "or", text);
 
-
+    start_processing_time = new Date();
     const puzzle = document.getElementById('puzzle');
-    puzzle.innerHTML = prepare_puzzle(text);
+    prepare_puzzle(text)
     // puzzle.appendChild(document.createTextNode(text));
 
-    await sleep(800);
+    processing_time = new Date() - start_processing_time;
+    console.log("Generated in:" + processing_time + "ms")
+
+    // wait for animation to finish
+    await sleep(350 - processing_time);
     puzzle.style.display = "initial";
     input_form.style.display = "none";
     puzzle.classList.add('animate__animated', 'animate__fadeIn');
 
-    document.getElementById('puzzle_0').focus();
+    first_puzzle = document.getElementById('puzzle_0');
+    if (first_puzzle != null){
+        first_puzzle.focus();
+    }
+    else {
+        info = document.createElement("div")
+        info.innerHTML = "No text provided."
+        info.style.marginBottom = "2em"
+        puzzle.appendChild(info)
+    }
 
     finish_btn = document.createElement("button");
     finish_btn.innerHTML = "Reveal";
@@ -42,7 +55,7 @@ async function generate(event) {
     back_btn.innerHTML = "Back";
     back_btn.classList.add('button', 'is-primary', 'animate__animated', 'animate__fadeIn');
     back_btn.style.marginLeft = '1em';
-    back_btn.addEventListener("click", function(){ location.reload() }, false)
+    back_btn.addEventListener("click", function () { location.reload() }, false)
 
     await sleep(100);
     puzzle.appendChild(finish_btn);
@@ -50,34 +63,55 @@ async function generate(event) {
 }
 
 function prepare_puzzle(text) {
-    // var article = document.getElementsByTagName('article');
-    const special_chars = new Set([".", ",", ":", "!", "?", "-", "\"", ")"]);
-    const cover = function(i, value) {
-        return "<input id='puzzle_"+ i + "' class='puzzle' maxlength=" + rm_len + " oninput='change_focus(event)' data-value='" + value + "'>";
-    }
-    var ctr = 0
+    // This way is slower than previous implementation but it is simpler
 
-    var paragraphs = text.split(/\n+/);
-    new_text = paragraphs.map(function (p) {
-        var prepared_text = p.split(/\s+/);
-        // console.log(prepared_text);
-        return prepared_text.map(function (word) {
+    const special_chars = new Set([".", ",", ":", "!", "?", "-", "\"", ")"]);
+    const cover = function (i, value) {
+        input = document.createElement("input")
+        input.id = 'puzzle_' + i
+        input.classList.add('puzzle')
+        input.dataset.value = value
+        input.maxLength = rm_len
+        input.addEventListener("input", change_focus, { capture: true })
+
+        return input
+    }
+
+    var ctr = 0
+    const puzzle = document.getElementById('puzzle');
+
+    for (const paragraph of text.split(/\n+/)) {
+        par = document.createElement("p")
+        for (const word of paragraph.split(/\s+/)) {
+            ws = document.createElement("span")
+            ws.classList.add('word')
+
             if (word.replaceAll(/[\s\(\)0-9A-Z\-\.]/g, '').length > 4) {
-                if (special_chars.has(word.slice(-1))) {
-                    new_word = word.slice(0, -rm_len - 1) + cover(ctr, word.slice(-rm_len - 1, -1)) + word.slice(-1);
+                var sc_ctr = 0
+                while (special_chars.has(word.charAt(word.length-1-sc_ctr))){
+                    sc_ctr += 1
+                }
+                // console.log(word, sc_ctr)
+
+                if (sc_ctr > 0) {
+                    ws.appendChild(document.createTextNode(word.slice(0, -rm_len - sc_ctr)))
+                    ws.appendChild(cover(ctr, word.slice(-rm_len - sc_ctr, -sc_ctr)))
+                    ws.appendChild(document.createTextNode(word.slice(-sc_ctr)))
                 }
                 else {
-                    new_word = word.slice(0, -rm_len) + cover(ctr, word.slice(-rm_len));
+                    ws.appendChild(document.createTextNode(word.slice(0, -rm_len)))
+                    ws.appendChild(cover(ctr, word.slice(-rm_len)))
                 }
                 ctr += 1
-                // console.log(word + "\t" + new_word);
-                return new_word;
             }
-            return word;
-        }).join(' ');
-    }).join('</p><p>');
+            else {
+                ws.appendChild(document.createTextNode(word))
+            }
 
-    return '<p>' + new_text + '</p>'
+            par.appendChild(ws)
+            puzzle.appendChild(par)
+        }
+    }
 }
 
 function change_focus(change) {
@@ -89,7 +123,7 @@ function change_focus(change) {
             [prefix, ctr] = change.target.id.split('_')
             new_id = prefix + '_' + (Number(ctr) + 1)
             next = document.getElementById(new_id)
-            if (next != null){
+            if (next != null) {
                 next.focus();
             }
         }
