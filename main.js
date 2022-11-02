@@ -35,7 +35,7 @@ async function generate(event) {
     puzzle.classList.add('animate__animated', 'animate__fadeIn');
 
     first_puzzle = document.getElementById('puzzle_0');
-    if (first_puzzle != null){
+    if (first_puzzle != null) {
         first_puzzle.focus();
     }
     else {
@@ -70,7 +70,7 @@ function prepare_puzzle(text) {
         input = document.createElement("input")
         input.id = 'puzzle_' + i
         input.classList.add('puzzle')
-        input.dataset.value = value
+        input.dataset.value = value.replaceAll('’', '\'')
         input.maxLength = rm_len
         input.addEventListener("input", change_focus, { capture: true })
 
@@ -88,7 +88,7 @@ function prepare_puzzle(text) {
 
             if (word.replaceAll(/[\s\(\)0-9A-Z\-\.]/g, '').length > 4) {
                 var sc_ctr = 0
-                while (special_chars.has(word.charAt(word.length-1-sc_ctr))){
+                while (special_chars.has(word.charAt(word.length - 1 - sc_ctr))) {
                     sc_ctr += 1
                 }
                 // console.log(word, sc_ctr)
