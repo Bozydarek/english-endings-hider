@@ -65,7 +65,7 @@ async function generate(event) {
 function prepare_puzzle(text) {
     // This way is slower than previous implementation but it is simpler
 
-    const special_chars = new Set([".", ",", ":", "!", "?", "-", "\"", ")"]);
+    const special_chars = new Set([".", ",", ":", ";", "!", "?", "-", "\"", ")", "]", "}", "%", '\'']);
     const cover = function (i, value) {
         input = document.createElement("input")
         input.id = 'puzzle_' + i
