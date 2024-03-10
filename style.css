@@ -15,3 +15,8 @@ span.word {
     white-space: nowrap;
     margin-right: 0.35em;
 }
+
+#version {
+    text-align: right;
+    color: lightgrey;
+}
