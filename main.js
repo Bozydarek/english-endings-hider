@@ -19,16 +19,16 @@ async function generate (event) {
     input_form.classList.add("animate__animated", "animate__backOutUp", "animate__fast");
 
     const url = document.getElementById("url").value;
-    const text = document.getElementById("text").value;
+    let text = document.getElementById("text").value;
 
     // console.log(url, "or", text);
-    start_processing_time = new Date();
 
+    const start_processing_time = new Date();
     const puzzle = document.getElementById("puzzle");
     prepare_puzzle(text);
     // puzzle.appendChild(document.createTextNode(text));
 
-    processing_time = new Date() - start_processing_time;
+    const processing_time = new Date() - start_processing_time;
     console.log("Generated in:" + processing_time + "ms");
 
     // wait for animation to finish
@@ -37,27 +37,27 @@ async function generate (event) {
     input_form.style.display = "none";
     puzzle.classList.add("animate__animated", "animate__fadeIn");
 
-    first_puzzle = document.getElementById("puzzle_0");
+    const first_puzzle = document.getElementById("puzzle_0");
     if (first_puzzle != null) {
         first_puzzle.focus();
     } else {
-        info = document.createElement("div");
+        const info = document.createElement("div");
         info.innerHTML = "No text provided.";
         info.style.marginBottom = "2em";
         puzzle.appendChild(info);
     }
 
-    finish_btn = document.createElement("button");
+    const finish_btn = document.createElement("button");
     finish_btn.innerHTML = "Reveal";
     finish_btn.id = "finish";
     finish_btn.classList.add("button", "is-primary", "animate__animated", "animate__fadeIn");
     finish_btn.addEventListener("click", reveal_solution, false);
 
-    back_btn = document.createElement("button");
+    const back_btn = document.createElement("button");
     back_btn.innerHTML = "Back";
     back_btn.classList.add("button", "is-primary", "animate__animated", "animate__fadeIn");
     back_btn.style.marginLeft = "1em";
-    back_btn.addEventListener("click", function () { location.reload(); }, false);
+    back_btn.addEventListener("click", function () { window.location.reload(); }, false);
 
     await sleep(100);
     puzzle.appendChild(finish_btn);
@@ -69,7 +69,7 @@ function prepare_puzzle (text) {
 
     const special_chars = new Set([".", ",", ":", ";", "!", "?", "-", "\"", ")", "]", "}", "%", "'", "\\", "/"]);
     const cover = function (i, value) {
-        input = document.createElement("input");
+        const input = document.createElement("input");
         input.id = "puzzle_" + i;
         input.classList.add("puzzle");
         input.dataset.value = value.replaceAll("’", "'");
@@ -83,12 +83,12 @@ function prepare_puzzle (text) {
     const puzzle = document.getElementById("puzzle");
 
     for (const paragraph of text.split(/\n+/)) {
-        par = document.createElement("p");
+        const par = document.createElement("p");
         for (const word of paragraph.split(/\s+/)) {
-            ws = document.createElement("span");
+            const ws = document.createElement("span");
             ws.classList.add("word");
 
-            if (word.replaceAll(/[\s\(\)0-9A-Z\-\.]/g, "").length > 4) {
+            if (word.replaceAll(/[\s()0-9A-Z\-.]/g, "").length > 4) {
                 let sc_ctr = 0;
                 while (special_chars.has(word.charAt(word.length - 1 - sc_ctr))) {
                     sc_ctr += 1;
@@ -115,14 +115,13 @@ function prepare_puzzle (text) {
 }
 
 function change_focus (change) {
-    if (change.target.value.length == 2) {
-        if (change.target.value == change.target.dataset.value) {
+    if (change.target.value.length === 2) {
+        if (change.target.value === change.target.dataset.value) {
             change.target.style.borderColor = "green";
 
-            let prefix, ctr;
-            [prefix, ctr] = change.target.id.split("_");
-            new_id = prefix + "_" + (Number(ctr) + 1);
-            next = document.getElementById(new_id);
+            const [prefix, ctr] = change.target.id.split("_");
+            const new_id = prefix + "_" + (Number(ctr) + 1);
+            const next = document.getElementById(new_id);
             if (next != null) {
                 next.focus();
             }
@@ -130,15 +129,17 @@ function change_focus (change) {
     }
 }
 
-function reveal_solution() {
-    ctr = 0
+function reveal_solution () {
+    let ctr = 0;
+    let p;
     do {
-        p = document.getElementById("puzzle_" + ctr)
+        p = document.getElementById("puzzle_" + ctr);
 
-        if (p.value != p.dataset.value) {
-            p.value = p.dataset.value
+        if (p.value !== p.dataset.value) {
+            p.value = p.dataset.value;
         }
-        ctr += 1
+        ctr += 1;
     } while (p != null);
+}
 
 }
